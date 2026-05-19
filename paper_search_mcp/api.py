@@ -817,6 +817,45 @@ async def download(
     return "Download failed after OA fallback chain and Sci-Hub fallback. Details: " + " | ".join(attempt_errors)
 
 
+async def read(source: str, paper_id: str, save_path: str = "./downloads") -> str:
+    """Read a paper using the source-specific reader.
+
+    Args:
+        source: Source name matching a configured reader.
+        paper_id: Source-native paper identifier.
+        save_path: Directory where the PDF is/will be saved.
+    Returns:
+        Extracted text content or a source-specific error message.
+    """
+    source_name = source.strip().lower()
+    primary_readers = {
+        "arxiv": read_arxiv_paper,
+        "pubmed": read_pubmed_paper,
+        "biorxiv": read_biorxiv_paper,
+        "medrxiv": read_medrxiv_paper,
+        "iacr": read_iacr_paper,
+        "semantic": read_semantic_paper,
+        "crossref": read_crossref_paper,
+        "dblp": read_dblp_paper,
+        "openaire": read_openaire_paper,
+        "citeseerx": read_citeseerx_paper,
+        "doaj": read_doaj_paper,
+        "base": read_base_paper,
+        "zenodo": read_zenodo_paper,
+        "hal": read_hal_paper,
+        "ssrn": read_ssrn_paper,
+        "openalex": read_openalex_paper,
+    }
+    if ieee_searcher is not None:
+        primary_readers["ieee"] = read_ieee_paper
+    if acm_searcher is not None:
+        primary_readers["acm"] = read_acm_paper
+    reader = primary_readers.get(source_name)
+    if reader is None:
+        raise ValueError(f"Unsupported source '{source}' for read.")
+    return await reader(paper_id, save_path)
+
+
 async def read_crossref_paper(paper_id: str, save_path: str = "./downloads") -> str:
     """Attempt to read and extract text content from a CrossRef paper.
 
@@ -1347,6 +1386,7 @@ TOOLS = [
     download_crossref,
     download_scihub,
     download,
+    read,
     download_dblp,
     download_openaire,
     download_citeseerx,
