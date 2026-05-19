@@ -48,14 +48,14 @@ A Model Context Protocol (MCP) server for searching and downloading academic pap
 ## Features
 
 - **Two-Layer Architecture**:
-  - **Layer 1 (Unified Tooling)**: High-level `search_papers` for multi-source concurrent search & deduplication, and `download_with_fallback` relying on publisher open access links with sequential fallbacks.
+  - **Layer 1 (Unified Tooling)**: High-level `search` for multi-source concurrent search & deduplication, and `download` relying on publisher open access links with sequential fallbacks.
   - **Layer 2 (Platform Connectors)**: Modular connectors for specific academic platforms (arXiv, PubMed, bioRxiv, Semantic Scholar, etc.) equipped with intelligent DOI extraction via regex text analysis or API fields.
 - **Multi-Source Support**: Search and download papers from arXiv, PubMed, bioRxiv, medRxiv, Google Scholar, IACR ePrint Archive, Semantic Scholar, Crossref, OpenAlex, PubMed Central (PMC), CORE, Europe PMC, dblp, OpenAIRE, CiteSeerX, DOAJ, BASE, Zenodo, HAL, SSRN, Unpaywall (DOI lookup), and optional Sci-Hub workflows.
 - **Standardized Output**: Papers are returned in a consistent dictionary format via the `Paper` class.
 - **Free-First Design**: Open and public sources are prioritized before any optional commercial or restricted integrations.
 - **Optional API-Key Enhancement**: Sources like Semantic Scholar can work better with a user-provided API key, but are not intended to force paid usage.
 - **Discovery + Retrieval Workflow**: Google Scholar and Crossref can be used for discovery and DOI backfilling, while open repositories and publisher links are used for lawful full-text resolution where available.
-- **OA-First Fallback Chain**: `download_with_fallback` now follows source-native download → OpenAIRE/CORE/Europe PMC/PMC discovery → Unpaywall DOI resolution → optional Sci-Hub.
+- **OA-First Fallback Chain**: `download` now follows source-native download → OpenAIRE/CORE/Europe PMC/PMC discovery → Unpaywall DOI resolution → optional Sci-Hub.
 - **MCP Integration**: Compatible with MCP clients for LLM context enhancement.
 - **Extensible Design**: Easily add new academic platforms by extending the `academic_platforms` module.
 
@@ -143,7 +143,7 @@ Some search failures are caused by external provider instability, not by bugs in
 | CiteSeerX | 404 via web archive redirect | PSU endpoint intermittently redirects to archive | No workaround; connector returns empty gracefully |
 | BASE | Search returns 0 results | OAI-PMH endpoint requires institutional IP registration | Register at [base-search.net](https://www.base-search.net/about/en/) for API access; connector returns empty gracefully otherwise |
 | SSRN | HTTP 403 | Bot-detection (Cloudflare) | No workaround; connector tries two endpoints and returns a clear message on failure |
-| PMC / Europe PMC | PDF download ProxyError | Local proxy blocking direct HTTPS PDF download | Disable proxy or use `download_with_fallback` instead |
+| PMC / Europe PMC | PDF download ProxyError | Local proxy blocking direct HTTPS PDF download | Disable proxy or use `download` instead |
 | Unpaywall | Skipped entirely | `UNPAYWALL_EMAIL` env var not set | Set `PAPER_SEARCH_MCP_UNPAYWALL_EMAIL` in `.env` |
 
 ## Optional Paid Platform Connectors (Phase 3)
@@ -540,7 +540,7 @@ We welcome contributions! Here's how to get started:
 ### Development Tasks
 - [√] Fix Async search bugs and ensure reliable fast MCP events
 - [√] End-to-End full pipeline testing script (search, parse, download)
-- [√] Establish two-layer federated architecture (Layer 1 tool: `search_papers`)
+- [√] Establish two-layer federated architecture (Layer 1 tool: `search`)
 - [√] Ensure pervasive DOI extraction across metadata fields & abstract fallbacks
 - [ ] Citation graph & Paper relation context feature
 - [√] Expand full-stack OpenAlex provider

@@ -235,7 +235,7 @@ async def _try_repository_fallback(doi: str, title: str, save_path: str) -> tupl
     return None, "; ".join(repository_errors)
 
 
-async def search_papers(
+async def search(
     query: str,
     max_results_per_source: int = 5,
     sources: str = "all",
@@ -725,7 +725,7 @@ async def download_scihub(
     return "Sci-Hub download failed. Try DOI first, then title, or change mirror URL."
 
 
-async def download_with_fallback(
+async def download(
     source: str,
     paper_id: str,
     doi: str = "",
@@ -1309,13 +1309,13 @@ if acm_searcher is not None:
         return acm_searcher.read_paper(paper_id, save_path)
 
 
-async def list_sources() -> Dict[str, List[str]]:
+async def sources() -> Dict[str, List[str]]:
     """List available paper sources for this installation."""
     return {"sources": ALL_SOURCES}
 
 
 TOOLS = [
-    search_papers,
+    search,
     search_arxiv,
     search_pubmed,
     search_biorxiv,
@@ -1346,7 +1346,7 @@ TOOLS = [
     download_semantic,
     download_crossref,
     download_scihub,
-    download_with_fallback,
+    download,
     download_dblp,
     download_openaire,
     download_citeseerx,
@@ -1372,7 +1372,7 @@ TOOLS = [
     read_hal_paper,
     read_ssrn_paper,
     read_openalex_paper,
-    list_sources,
+    sources,
 ]
 
 if ieee_searcher is not None:

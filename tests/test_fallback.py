@@ -11,7 +11,7 @@ class TestDownloadWithFallback(unittest.TestCase):
              patch("paper_search_mcp.api._try_repository_fallback", new=AsyncMock(return_value=("/tmp/repo.pdf", ""))), \
              patch("paper_search_mcp.api.SciHubFetcher.download_pdf", side_effect=AssertionError("Sci-Hub should not be called")):
             result = asyncio.run(
-                api.download_with_fallback(
+                api.download(
                     source="arxiv",
                     paper_id="1234.5678",
                     doi="10.1000/test",
@@ -27,7 +27,7 @@ class TestDownloadWithFallback(unittest.TestCase):
              patch.object(api.unpaywall_resolver, "resolve_best_pdf_url", return_value="https://example.org/oa.pdf"), \
              patch("paper_search_mcp.api._download_from_url", new=AsyncMock(return_value="/tmp/unpaywall.pdf")):
             result = asyncio.run(
-                api.download_with_fallback(
+                api.download(
                     source="arxiv",
                     paper_id="1234.5678",
                     doi="10.1000/test",
@@ -42,7 +42,7 @@ class TestDownloadWithFallback(unittest.TestCase):
              patch("paper_search_mcp.api._try_repository_fallback", new=AsyncMock(return_value=(None, "repo failed"))), \
              patch.object(api.unpaywall_resolver, "resolve_best_pdf_url", return_value=None):
             result = asyncio.run(
-                api.download_with_fallback(
+                api.download(
                     source="arxiv",
                     paper_id="1234.5678",
                     doi="10.1000/test",
