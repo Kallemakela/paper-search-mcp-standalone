@@ -1,7 +1,11 @@
 # tests/test_crossref.py
+import asyncio
 import unittest
 import os
 import requests
+from unittest.mock import Mock, patch
+
+from paper_search_mcp import api
 from paper_search_mcp.academic_platforms.crossref import CrossRefSearcher
 
 def check_api_accessible():
@@ -100,6 +104,32 @@ class TestCrossRefSearcher(unittest.TestCase):
         # Test that the session has the correct user agent
         self.assertIn("paper-search-mcp", self.searcher.session.headers.get('User-Agent', ''))
         self.assertIn("mailto:", self.searcher.session.headers.get('User-Agent', ''))
+
+    def test_search_diagnostics_crossref(self):
+        response = Mock()
+        response.json.return_value = {"message": {"total-results": 4567}}
+        response.raise_for_status.return_value = None
+
+        with patch.object(api.crossref_searcher.session, "get", return_value=response) as mock_get:
+            result = asyncio.run(
+                api.search_diagnostics_crossref(
+                    "transformers",
+                    filter="from-pub-date:2024-01-01",
+                )
+            )
+
+        self.assertEqual(result, {
+            "query": "transformers",
+            "source": "crossref",
+            "filter": "from-pub-date:2024-01-01",
+            "total_results": 4567,
+        })
+        self.assertEqual(mock_get.call_args.kwargs["params"], {
+            "query": "transformers",
+            "rows": 0,
+            "mailto": "paper-search@example.org",
+            "filter": "from-pub-date:2024-01-01",
+        })
 
 if __name__ == '__main__':
     unittest.main()

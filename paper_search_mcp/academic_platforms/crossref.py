@@ -88,7 +88,21 @@ class CrossRefSearcher(PaperSource):
         except Exception as e:
             logger.error(f"Unexpected error in CrossRef search: {e}")
             return []
-    
+
+    def search_diagnostics(self, query: str, filter: Optional[str] = None) -> int:
+        """Return the total number of CrossRef works matching a query."""
+        params = {
+            'query': query,
+            'rows': 0,
+            'mailto': 'paper-search@example.org'
+        }
+        if filter:
+            params['filter'] = filter
+
+        response = self.session.get(f"{self.BASE_URL}/works", params=params, timeout=30)
+        response.raise_for_status()
+        return int(response.json().get('message', {}).get('total-results', 0))
+
     def _parse_crossref_item(self, item: Dict[str, Any]) -> Optional[Paper]:
         """Parse a CrossRef API item into a Paper object."""
         try:

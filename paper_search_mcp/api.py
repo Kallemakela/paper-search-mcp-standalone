@@ -671,6 +671,31 @@ async def search_crossref(
     return papers if papers else []
 
 
+async def search_diagnostics_crossref(
+    query: str,
+    filter: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Return CrossRef query diagnostics for a search query.
+
+    Args:
+        query: Search query string (e.g., 'machine learning').
+        filter: Optional CrossRef filter string.
+    Returns:
+        Dictionary including the total number of matching CrossRef works.
+    """
+    total_results = await asyncio.to_thread(
+        crossref_searcher.search_diagnostics,
+        query,
+        filter,
+    )
+    return {
+        "query": query,
+        "source": "crossref",
+        "filter": filter or "",
+        "total_results": total_results,
+    }
+
+
 async def get_crossref_paper_by_doi(doi: str) -> Dict:
     """Get a specific paper from CrossRef by its DOI.
 
@@ -1354,6 +1379,7 @@ async def sources() -> Dict[str, List[str]]:
 
 TOOLS = [
     search_papers,
+    search_diagnostics_crossref,
     search_diagnostics_openalex,
     search_arxiv,
     search_pubmed,
