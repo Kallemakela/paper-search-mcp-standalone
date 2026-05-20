@@ -5,7 +5,6 @@ import os
 import logging
 import re
 import httpx
-from mcp.server.fastmcp import FastMCP
 from .config import get_env
 from .academic_platforms.arxiv import ArxivSearcher
 from .academic_platforms.pubmed import PubMedSearcher
@@ -34,8 +33,6 @@ from .utils import extract_doi
 # from .academic_platforms.hub import SciHubSearcher
 from .paper import Paper
 
-# Initialize MCP server
-mcp = FastMCP("paper_search_server")
 logger = logging.getLogger(__name__)
 
 # Instances of searchers
@@ -238,7 +235,6 @@ async def _try_repository_fallback(doi: str, title: str, save_path: str) -> tupl
     return None, "; ".join(repository_errors)
 
 
-@mcp.tool()
 async def search_papers(
     query: str,
     max_results_per_source: int = 5,
@@ -354,7 +350,6 @@ async def search_papers(
 
 
 # Tool definitions
-@mcp.tool()
 async def search_arxiv(query: str, max_results: int = 10, sort_by: str = 'relevance', sort_order: str = 'descending') -> List[Dict]:
     """Search academic papers from arXiv.
 
@@ -370,7 +365,6 @@ async def search_arxiv(query: str, max_results: int = 10, sort_by: str = 'releva
     return papers if papers else []
 
 
-@mcp.tool()
 async def search_pubmed(query: str, max_results: int = 10, sort: str = 'relevance') -> List[Dict]:
     """Search academic papers from PubMed.
 
@@ -385,7 +379,6 @@ async def search_pubmed(query: str, max_results: int = 10, sort: str = 'relevanc
     return papers if papers else []
 
 
-@mcp.tool()
 async def search_biorxiv(query: str, max_results: int = 10) -> List[Dict]:
     """Search academic papers from bioRxiv.
 
@@ -403,7 +396,6 @@ async def search_biorxiv(query: str, max_results: int = 10) -> List[Dict]:
     return papers if papers else []
 
 
-@mcp.tool()
 async def search_medrxiv(query: str, max_results: int = 10) -> List[Dict]:
     """Search academic papers from medRxiv.
 
@@ -421,7 +413,6 @@ async def search_medrxiv(query: str, max_results: int = 10) -> List[Dict]:
     return papers if papers else []
 
 
-@mcp.tool()
 async def search_google_scholar(query: str, max_results: int = 10) -> List[Dict]:
     """Search academic papers from Google Scholar.
 
@@ -435,7 +426,6 @@ async def search_google_scholar(query: str, max_results: int = 10) -> List[Dict]
     return papers if papers else []
 
 
-@mcp.tool()
 async def search_iacr(
     query: str, max_results: int = 10, fetch_details: bool = True
 ) -> List[Dict]:
@@ -452,7 +442,6 @@ async def search_iacr(
     return [paper.to_dict() for paper in papers] if papers else []
 
 
-@mcp.tool()
 async def download_arxiv(paper_id: str, save_path: str = "./downloads") -> str:
     """Download PDF of an arXiv paper.
 
@@ -465,7 +454,6 @@ async def download_arxiv(paper_id: str, save_path: str = "./downloads") -> str:
     return await asyncio.to_thread(arxiv_searcher.download_pdf, paper_id, save_path)
 
 
-@mcp.tool()
 async def download_pubmed(paper_id: str, save_path: str = "./downloads") -> str:
     """Attempt to download PDF of a PubMed paper.
 
@@ -481,7 +469,6 @@ async def download_pubmed(paper_id: str, save_path: str = "./downloads") -> str:
         return str(e)
 
 
-@mcp.tool()
 async def download_biorxiv(paper_id: str, save_path: str = "./downloads") -> str:
     """Download PDF of a bioRxiv paper.
 
@@ -494,7 +481,6 @@ async def download_biorxiv(paper_id: str, save_path: str = "./downloads") -> str
     return biorxiv_searcher.download_pdf(paper_id, save_path)
 
 
-@mcp.tool()
 async def download_medrxiv(paper_id: str, save_path: str = "./downloads") -> str:
     """Download PDF of a medRxiv paper.
 
@@ -507,7 +493,6 @@ async def download_medrxiv(paper_id: str, save_path: str = "./downloads") -> str
     return medrxiv_searcher.download_pdf(paper_id, save_path)
 
 
-@mcp.tool()
 async def download_iacr(paper_id: str, save_path: str = "./downloads") -> str:
     """Download PDF of an IACR ePrint paper.
 
@@ -520,7 +505,6 @@ async def download_iacr(paper_id: str, save_path: str = "./downloads") -> str:
     return iacr_searcher.download_pdf(paper_id, save_path)
 
 
-@mcp.tool()
 async def read_arxiv_paper(paper_id: str, save_path: str = "./downloads") -> str:
     """Read and extract text content from an arXiv paper PDF.
 
@@ -537,7 +521,6 @@ async def read_arxiv_paper(paper_id: str, save_path: str = "./downloads") -> str
         return ""
 
 
-@mcp.tool()
 async def read_pubmed_paper(paper_id: str, save_path: str = "./downloads") -> str:
     """Read and extract text content from a PubMed paper.
 
@@ -550,7 +533,6 @@ async def read_pubmed_paper(paper_id: str, save_path: str = "./downloads") -> st
     return pubmed_searcher.read_paper(paper_id, save_path)
 
 
-@mcp.tool()
 async def read_biorxiv_paper(paper_id: str, save_path: str = "./downloads") -> str:
     """Read and extract text content from a bioRxiv paper PDF.
 
@@ -567,7 +549,6 @@ async def read_biorxiv_paper(paper_id: str, save_path: str = "./downloads") -> s
         return ""
 
 
-@mcp.tool()
 async def read_medrxiv_paper(paper_id: str, save_path: str = "./downloads") -> str:
     """Read and extract text content from a medRxiv paper PDF.
 
@@ -584,7 +565,6 @@ async def read_medrxiv_paper(paper_id: str, save_path: str = "./downloads") -> s
         return ""
 
 
-@mcp.tool()
 async def read_iacr_paper(paper_id: str, save_path: str = "./downloads") -> str:
     """Read and extract text content from an IACR ePrint paper PDF.
 
@@ -601,7 +581,6 @@ async def read_iacr_paper(paper_id: str, save_path: str = "./downloads") -> str:
         return ""
 
 
-@mcp.tool()
 async def search_semantic(query: str, year: Optional[str] = None, max_results: int = 10) -> List[Dict]:
     """Search academic papers from Semantic Scholar.
 
@@ -619,7 +598,6 @@ async def search_semantic(query: str, year: Optional[str] = None, max_results: i
     return papers if papers else []
 
 
-@mcp.tool()
 async def download_semantic(paper_id: str, save_path: str = "./downloads") -> str:
     """Download PDF of a Semantic Scholar paper.    
 
@@ -640,7 +618,6 @@ async def download_semantic(paper_id: str, save_path: str = "./downloads") -> st
     return semantic_searcher.download_pdf(paper_id, save_path)
 
 
-@mcp.tool()
 async def read_semantic_paper(paper_id: str, save_path: str = "./downloads") -> str:
     """Read and extract text content from a Semantic Scholar paper. 
 
@@ -665,7 +642,6 @@ async def read_semantic_paper(paper_id: str, save_path: str = "./downloads") -> 
         return ""
 
 
-@mcp.tool()
 async def search_crossref(
     query: str,
     max_results: int = 10,
@@ -694,7 +670,6 @@ async def search_crossref(
     return papers if papers else []
 
 
-@mcp.tool()
 async def get_crossref_paper_by_doi(doi: str) -> Dict:
     """Get a specific paper from CrossRef by its DOI.
 
@@ -710,7 +685,6 @@ async def get_crossref_paper_by_doi(doi: str) -> Dict:
     return paper.to_dict() if paper else {}
 
 
-@mcp.tool()
 async def download_crossref(paper_id: str, save_path: str = "./downloads") -> str:
     """Attempt to download PDF of a CrossRef paper.
 
@@ -730,7 +704,6 @@ async def download_crossref(paper_id: str, save_path: str = "./downloads") -> st
         return str(e)
 
 
-@mcp.tool()
 async def download_scihub(
     identifier: str,
     save_path: str = "./downloads",
@@ -752,7 +725,6 @@ async def download_scihub(
     return "Sci-Hub download failed. Try DOI first, then title, or change mirror URL."
 
 
-@mcp.tool()
 async def download_with_fallback(
     source: str,
     paper_id: str,
@@ -845,7 +817,6 @@ async def download_with_fallback(
     return "Download failed after OA fallback chain and Sci-Hub fallback. Details: " + " | ".join(attempt_errors)
 
 
-@mcp.tool()
 async def read_crossref_paper(paper_id: str, save_path: str = "./downloads") -> str:
     """Attempt to read and extract text content from a CrossRef paper.
 
@@ -862,7 +833,6 @@ async def read_crossref_paper(paper_id: str, save_path: str = "./downloads") -> 
     return crossref_searcher.read_paper(paper_id, save_path)
 
 
-@mcp.tool()
 async def search_openalex(query: str, max_results: int = 10) -> List[Dict]:
     """Search academic papers from OpenAlex.
 
@@ -876,7 +846,6 @@ async def search_openalex(query: str, max_results: int = 10) -> List[Dict]:
     return papers if papers else []
 
 
-@mcp.tool()
 async def search_pmc(query: str, max_results: int = 10) -> List[Dict]:
     """Search academic papers from PubMed Central (PMC).
 
@@ -890,7 +859,6 @@ async def search_pmc(query: str, max_results: int = 10) -> List[Dict]:
     return papers if papers else []
 
 
-@mcp.tool()
 async def search_core(query: str, max_results: int = 10) -> List[Dict]:
     """Search academic papers from CORE.
 
@@ -904,7 +872,6 @@ async def search_core(query: str, max_results: int = 10) -> List[Dict]:
     return papers if papers else []
 
 
-@mcp.tool()
 async def search_europepmc(query: str, max_results: int = 10) -> List[Dict]:
     """Search academic papers from Europe PMC.
 
@@ -918,7 +885,6 @@ async def search_europepmc(query: str, max_results: int = 10) -> List[Dict]:
     return papers if papers else []
 
 
-@mcp.tool()
 async def search_dblp(query: str, max_results: int = 10) -> List[Dict]:
     """Search academic papers from dblp computer science bibliography.
 
@@ -932,7 +898,6 @@ async def search_dblp(query: str, max_results: int = 10) -> List[Dict]:
     return papers if papers else []
 
 
-@mcp.tool()
 async def search_openaire(query: str, max_results: int = 10) -> List[Dict]:
     """Search academic papers from OpenAIRE European Open Access infrastructure.
 
@@ -946,7 +911,6 @@ async def search_openaire(query: str, max_results: int = 10) -> List[Dict]:
     return papers if papers else []
 
 
-@mcp.tool()
 async def search_citeseerx(query: str, max_results: int = 10) -> List[Dict]:
     """Search academic papers from CiteSeerX digital library.
 
@@ -960,7 +924,6 @@ async def search_citeseerx(query: str, max_results: int = 10) -> List[Dict]:
     return papers if papers else []
 
 
-@mcp.tool()
 async def search_doaj(query: str, max_results: int = 10) -> List[Dict]:
     """Search academic papers from DOAJ (Directory of Open Access Journals).
 
@@ -974,7 +937,6 @@ async def search_doaj(query: str, max_results: int = 10) -> List[Dict]:
     return papers if papers else []
 
 
-@mcp.tool()
 async def search_base(query: str, max_results: int = 10) -> List[Dict]:
     """Search academic papers from BASE (Bielefeld Academic Search Engine).
 
@@ -988,7 +950,6 @@ async def search_base(query: str, max_results: int = 10) -> List[Dict]:
     return papers if papers else []
 
 
-@mcp.tool()
 async def search_zenodo(query: str, max_results: int = 10) -> List[Dict]:
     """Search academic papers from Zenodo open repository.
 
@@ -1002,7 +963,6 @@ async def search_zenodo(query: str, max_results: int = 10) -> List[Dict]:
     return papers if papers else []
 
 
-@mcp.tool()
 async def search_hal(query: str, max_results: int = 10) -> List[Dict]:
     """Search academic papers from HAL open archive.
 
@@ -1016,7 +976,6 @@ async def search_hal(query: str, max_results: int = 10) -> List[Dict]:
     return papers if papers else []
 
 
-@mcp.tool()
 async def search_ssrn(query: str, max_results: int = 10) -> List[Dict]:
     """Search metadata records from SSRN.
 
@@ -1032,7 +991,6 @@ async def search_ssrn(query: str, max_results: int = 10) -> List[Dict]:
     return papers if papers else []
 
 
-@mcp.tool()
 async def search_unpaywall(query: str, max_results: int = 10) -> List[Dict]:
     """Lookup a DOI via Unpaywall and return OA metadata.
 
@@ -1049,7 +1007,6 @@ async def search_unpaywall(query: str, max_results: int = 10) -> List[Dict]:
     return papers if papers else []
 
 
-@mcp.tool()
 async def read_dblp_paper(paper_id: str, save_path: str = "./downloads") -> str:
     """Attempt to read and extract text content from a dblp paper.
 
@@ -1065,7 +1022,6 @@ async def read_dblp_paper(paper_id: str, save_path: str = "./downloads") -> str:
     return dblp_searcher.read_paper(paper_id, save_path)
 
 
-@mcp.tool()
 async def download_dblp(paper_id: str, save_path: str = "./downloads") -> str:
     """Download PDF for a paper from dblp.
 
@@ -1081,7 +1037,6 @@ async def download_dblp(paper_id: str, save_path: str = "./downloads") -> str:
     return dblp_searcher.download_pdf(paper_id, save_path)
 
 
-@mcp.tool()
 async def read_openaire_paper(paper_id: str, save_path: str = "./downloads") -> str:
     """Attempt to read and extract text content from an OpenAIRE paper.
 
@@ -1094,7 +1049,6 @@ async def read_openaire_paper(paper_id: str, save_path: str = "./downloads") -> 
     return openaire_searcher.read_paper(paper_id, save_path)
 
 
-@mcp.tool()
 async def download_openaire(paper_id: str, save_path: str = "./downloads") -> str:
     """Download PDF for a paper from OpenAIRE.
 
@@ -1107,7 +1061,6 @@ async def download_openaire(paper_id: str, save_path: str = "./downloads") -> st
     return openaire_searcher.download_pdf(paper_id, save_path)
 
 
-@mcp.tool()
 async def read_citeseerx_paper(paper_id: str, save_path: str = "./downloads") -> str:
     """Read and extract text content from a CiteSeerX paper.
 
@@ -1120,7 +1073,6 @@ async def read_citeseerx_paper(paper_id: str, save_path: str = "./downloads") ->
     return citeseerx_searcher.read_paper(paper_id, save_path)
 
 
-@mcp.tool()
 async def download_citeseerx(paper_id: str, save_path: str = "./downloads") -> str:
     """Download PDF for a paper from CiteSeerX.
 
@@ -1133,7 +1085,6 @@ async def download_citeseerx(paper_id: str, save_path: str = "./downloads") -> s
     return citeseerx_searcher.download_pdf(paper_id, save_path)
 
 
-@mcp.tool()
 async def read_doaj_paper(paper_id: str, save_path: str = "./downloads") -> str:
     """Read and extract text content from a DOAJ paper.
 
@@ -1146,7 +1097,6 @@ async def read_doaj_paper(paper_id: str, save_path: str = "./downloads") -> str:
     return doaj_searcher.read_paper(paper_id, save_path)
 
 
-@mcp.tool()
 async def download_doaj(paper_id: str, save_path: str = "./downloads") -> str:
     """Download PDF for a paper from DOAJ.
 
@@ -1159,7 +1109,6 @@ async def download_doaj(paper_id: str, save_path: str = "./downloads") -> str:
     return doaj_searcher.download_pdf(paper_id, save_path)
 
 
-@mcp.tool()
 async def read_base_paper(paper_id: str, save_path: str = "./downloads") -> str:
     """Read and extract text content from a BASE paper.
 
@@ -1172,7 +1121,6 @@ async def read_base_paper(paper_id: str, save_path: str = "./downloads") -> str:
     return base_searcher.read_paper(paper_id, save_path)
 
 
-@mcp.tool()
 async def download_base(paper_id: str, save_path: str = "./downloads") -> str:
     """Download PDF for a paper from BASE.
 
@@ -1185,7 +1133,6 @@ async def download_base(paper_id: str, save_path: str = "./downloads") -> str:
     return base_searcher.download_pdf(paper_id, save_path)
 
 
-@mcp.tool()
 async def read_zenodo_paper(paper_id: str, save_path: str = "./downloads") -> str:
     """Read and extract text content from a Zenodo paper.
 
@@ -1198,7 +1145,6 @@ async def read_zenodo_paper(paper_id: str, save_path: str = "./downloads") -> st
     return zenodo_searcher.read_paper(paper_id, save_path)
 
 
-@mcp.tool()
 async def download_zenodo(paper_id: str, save_path: str = "./downloads") -> str:
     """Download PDF for a paper from Zenodo.
 
@@ -1211,7 +1157,6 @@ async def download_zenodo(paper_id: str, save_path: str = "./downloads") -> str:
     return zenodo_searcher.download_pdf(paper_id, save_path)
 
 
-@mcp.tool()
 async def read_hal_paper(paper_id: str, save_path: str = "./downloads") -> str:
     """Read and extract text content from a HAL paper.
 
@@ -1224,7 +1169,6 @@ async def read_hal_paper(paper_id: str, save_path: str = "./downloads") -> str:
     return hal_searcher.read_paper(paper_id, save_path)
 
 
-@mcp.tool()
 async def download_hal(paper_id: str, save_path: str = "./downloads") -> str:
     """Download PDF for a paper from HAL.
 
@@ -1237,7 +1181,6 @@ async def download_hal(paper_id: str, save_path: str = "./downloads") -> str:
     return hal_searcher.download_pdf(paper_id, save_path)
 
 
-@mcp.tool()
 async def read_ssrn_paper(paper_id: str, save_path: str = "./downloads") -> str:
     """Read paper content from SSRN.
 
@@ -1252,7 +1195,6 @@ async def read_ssrn_paper(paper_id: str, save_path: str = "./downloads") -> str:
     return ssrn_searcher.read_paper(paper_id, save_path)
 
 
-@mcp.tool()
 async def download_ssrn(paper_id: str, save_path: str = "./downloads") -> str:
     """Download PDF for a paper from SSRN.
 
@@ -1267,7 +1209,6 @@ async def download_ssrn(paper_id: str, save_path: str = "./downloads") -> str:
     return ssrn_searcher.download_pdf(paper_id, save_path)
 
 
-@mcp.tool()
 async def read_openalex_paper(paper_id: str, save_path: str = "./downloads") -> str:
     """Attempt to read and extract text content from an OpenAlex paper.
 
@@ -1280,7 +1221,6 @@ async def read_openalex_paper(paper_id: str, save_path: str = "./downloads") -> 
     return openalex_searcher.read_paper(paper_id, save_path)
 
 
-@mcp.tool()
 async def download_openalex(paper_id: str, save_path: str = "./downloads") -> str:
     """Download PDF for a paper from OpenAlex.
 
@@ -1297,7 +1237,6 @@ async def download_openalex(paper_id: str, save_path: str = "./downloads") -> st
 # Optional IEEE Xplore tools — registered only when API key is set
 # ---------------------------------------------------------------------------
 if ieee_searcher is not None:
-    @mcp.tool()
     async def search_ieee(query: str, max_results: int = 10) -> List[Dict]:
         """Search IEEE Xplore for papers.  Requires PAPER_SEARCH_MCP_IEEE_API_KEY (or IEEE_API_KEY).
 
@@ -1309,7 +1248,6 @@ if ieee_searcher is not None:
         """
         return await async_search(ieee_searcher, query, max_results)
 
-    @mcp.tool()
     async def download_ieee(paper_id: str, save_path: str = "./downloads") -> str:
         """Download a PDF from IEEE Xplore.  Requires PAPER_SEARCH_MCP_IEEE_API_KEY (or IEEE_API_KEY) and institutional access.
 
@@ -1321,7 +1259,6 @@ if ieee_searcher is not None:
         """
         return await asyncio.to_thread(ieee_searcher.download_pdf, paper_id, save_path)
 
-    @mcp.tool()
     async def read_ieee_paper(paper_id: str, save_path: str = "./downloads") -> str:
         """Download and read an IEEE Xplore paper.  Requires PAPER_SEARCH_MCP_IEEE_API_KEY (or IEEE_API_KEY).
 
@@ -1338,7 +1275,6 @@ if ieee_searcher is not None:
 # Optional ACM Digital Library tools — registered only when API key is set
 # ---------------------------------------------------------------------------
 if acm_searcher is not None:
-    @mcp.tool()
     async def search_acm(query: str, max_results: int = 10) -> List[Dict]:
         """Search ACM Digital Library for papers.  Requires PAPER_SEARCH_MCP_ACM_API_KEY (or ACM_API_KEY).
 
@@ -1350,7 +1286,6 @@ if acm_searcher is not None:
         """
         return await async_search(acm_searcher, query, max_results)
 
-    @mcp.tool()
     async def download_acm(paper_id: str, save_path: str = "./downloads") -> str:
         """Download a PDF from ACM Digital Library.  Requires PAPER_SEARCH_MCP_ACM_API_KEY (or ACM_API_KEY) and institutional access.
 
@@ -1362,7 +1297,6 @@ if acm_searcher is not None:
         """
         return await asyncio.to_thread(acm_searcher.download_pdf, paper_id, save_path)
 
-    @mcp.tool()
     async def read_acm_paper(paper_id: str, save_path: str = "./downloads") -> str:
         """Download and read an ACM Digital Library paper.  Requires PAPER_SEARCH_MCP_ACM_API_KEY (or ACM_API_KEY).
 
@@ -1375,9 +1309,74 @@ if acm_searcher is not None:
         return acm_searcher.read_paper(paper_id, save_path)
 
 
-def main():
-    mcp.run(transport="stdio")
+async def sources() -> Dict[str, List[str]]:
+    """List available paper sources for this installation."""
+    return {"sources": ALL_SOURCES}
 
 
-if __name__ == "__main__":
-    main()
+TOOLS = [
+    search_papers,
+    search_arxiv,
+    search_pubmed,
+    search_biorxiv,
+    search_medrxiv,
+    search_google_scholar,
+    search_iacr,
+    search_semantic,
+    search_crossref,
+    get_crossref_paper_by_doi,
+    search_openalex,
+    search_pmc,
+    search_core,
+    search_europepmc,
+    search_dblp,
+    search_openaire,
+    search_citeseerx,
+    search_doaj,
+    search_base,
+    search_zenodo,
+    search_hal,
+    search_ssrn,
+    search_unpaywall,
+    download_arxiv,
+    download_pubmed,
+    download_biorxiv,
+    download_medrxiv,
+    download_iacr,
+    download_semantic,
+    download_crossref,
+    download_scihub,
+    download_with_fallback,
+    download_dblp,
+    download_openaire,
+    download_citeseerx,
+    download_doaj,
+    download_base,
+    download_zenodo,
+    download_hal,
+    download_ssrn,
+    download_openalex,
+    read_arxiv_paper,
+    read_pubmed_paper,
+    read_biorxiv_paper,
+    read_medrxiv_paper,
+    read_iacr_paper,
+    read_semantic_paper,
+    read_crossref_paper,
+    read_dblp_paper,
+    read_openaire_paper,
+    read_citeseerx_paper,
+    read_doaj_paper,
+    read_base_paper,
+    read_zenodo_paper,
+    read_hal_paper,
+    read_ssrn_paper,
+    read_openalex_paper,
+    sources,
+]
+
+if ieee_searcher is not None:
+    TOOLS.extend([search_ieee, download_ieee, read_ieee_paper])
+
+if acm_searcher is not None:
+    TOOLS.extend([search_acm, download_acm, read_acm_paper])
