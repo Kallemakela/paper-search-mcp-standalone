@@ -859,6 +859,31 @@ async def search_openalex(
     return papers if papers else []
 
 
+async def search_diagnostics_openalex(
+    query: str,
+    filter: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Return OpenAlex query diagnostics for a search query.
+
+    Args:
+        query: Search query string (e.g., 'machine learning').
+        filter: Optional OpenAlex filter string.
+    Returns:
+        Dictionary including the total number of matching OpenAlex works.
+    """
+    total_results = await asyncio.to_thread(
+        openalex_searcher.count_results,
+        query,
+        filter,
+    )
+    return {
+        "query": query,
+        "source": "openalex",
+        "filter": filter or "",
+        "total_results": total_results,
+    }
+
+
 async def search_pmc(query: str, max_results: int = 10) -> List[Dict]:
     """Search academic papers from PubMed Central (PMC).
 
@@ -1329,6 +1354,7 @@ async def sources() -> Dict[str, List[str]]:
 
 TOOLS = [
     search_papers,
+    search_diagnostics_openalex,
     search_arxiv,
     search_pubmed,
     search_biorxiv,

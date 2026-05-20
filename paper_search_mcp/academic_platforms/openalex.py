@@ -40,6 +40,20 @@ class OpenAlexSearcher(PaperSource):
             logger.warning(f"Error reconstructing OpenAlex abstract: {e}")
             return ""
 
+    def count_results(self, query: str, filter: Optional[str] = None) -> int:
+        """Return the total number of OpenAlex works matching a query."""
+        try:
+            params = {"search": query, "per_page": 1}
+            if filter:
+                params["filter"] = filter
+
+            response = self.session.get(self.BASE_URL, params=params, timeout=30)
+            response.raise_for_status()
+            return int(response.json().get("meta", {}).get("count", 0))
+        except Exception as e:
+            logger.error(f"OpenAlex count error: {e}")
+            return 0
+
     def search(self, query: str, max_results: int = 10, **kwargs: Any) -> List[Paper]:
         """
         Search OpenAlex works. Uses the 'search' filter.

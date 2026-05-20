@@ -1,7 +1,10 @@
+import asyncio
 import unittest
+from unittest.mock import Mock, patch
 
 import requests
 
+from paper_search_mcp import api
 from paper_search_mcp.academic_platforms.openalex import OpenAlexSearcher
 
 
@@ -46,6 +49,27 @@ class TestOpenAlexSearcher(unittest.TestCase):
     def test_user_agent_header(self):
         self.assertIn("paper-search-mcp", self.searcher.session.headers.get("User-Agent", ""))
         self.assertIn("mailto:", self.searcher.session.headers.get("User-Agent", ""))
+
+    def test_search_diagnostics_openalex(self):
+        response = Mock()
+        response.json.return_value = {"meta": {"count": 12345}}
+        response.raise_for_status.return_value = None
+
+        with patch.object(api.openalex_searcher.session, "get", return_value=response) as mock_get:
+            result = asyncio.run(
+                api.search_diagnostics_openalex(
+                    "transformers",
+                    filter="publication_year:2024",
+                )
+            )
+
+        self.assertEqual(result, {
+            "query": "transformers",
+            "source": "openalex",
+            "filter": "publication_year:2024",
+            "total_results": 12345,
+        })
+        mock_get.assert_called_once()
 
 
 if __name__ == "__main__":
