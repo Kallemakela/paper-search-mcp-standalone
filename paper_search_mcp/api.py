@@ -872,7 +872,7 @@ async def search_diagnostics_openalex(
         Dictionary including the total number of matching OpenAlex works.
     """
     total_results = await asyncio.to_thread(
-        openalex_searcher.count_results,
+        openalex_searcher.search_diagnostics,
         query,
         filter,
     )

@@ -40,7 +40,7 @@ class OpenAlexSearcher(PaperSource):
             logger.warning(f"Error reconstructing OpenAlex abstract: {e}")
             return ""
 
-    def count_results(self, query: str, filter: Optional[str] = None) -> int:
+    def search_diagnostics(self, query: str, filter: Optional[str] = None) -> int:
         """Return the total number of OpenAlex works matching a query."""
         try:
             params = {"search": query, "per_page": 1}
